@@ -9,6 +9,27 @@ class Admin(commands.Cog):
     def __init__(self, bot:DBBot):
         self.bot = bot
         self.db = bot.db
+
+    @app_commands.command(name="info", description="Displays info about SIGMA Bot.")
+    async def info(self, interaction:discord.Interaction):
+        #create embed
+        embed = discord.Embed(title=f"SIGMA Discord Bot", description=f"A bot for helping people connect easier developed by *William A. L.*", color=47103)
+        embed.add_field(name=f"Github", value=f"> https://github.com/FrewtyPebbles", inline=False)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="help", description="Displays commands and help info.")
+    async def help(self, interaction:discord.Interaction):
+        #create embed
+        embed = discord.Embed(title=f"Commands", description=f"A bot for making your social/gamer tags easily accessable to other users.", color=47103)
+        embed.add_field(name=f"/gt", value=f"View your /gt profile.  A /gt profile is a way for users to make their gamer-tags/friend-tags for different platforms accessable to other users.", inline=False)
+        embed.add_field(name=f"/gt user", value=f"View a user's /gt profile.", inline=False)
+        embed.add_field(name=f"/settag platform_name user_tag", value=f"Add tags for different games/platforms to your /gt profile.", inline=False)
+        embed.add_field(name=f"/removetag platform_name", value=f"Remove tags from your /gt profile.", inline=False)
+        if interaction.user.guild_permissions.administrator:
+            embed.add_field(name=f"/addplatform platform_name", value=f"Add platforms/games that users are allowed to add to their /gt profile.", inline=False)
+            embed.add_field(name=f"/removeplatform platform_name", value=f"Remove platforms/games from the list of platforms/games that users are allowed to add to their /gt profile.", inline=False)
+        embed.add_field(name=f"/info", value=f"Show info about the Sigma Bot and its developer.", inline=False)
+        await interaction.response.send_message(embed=embed)
     
     @commands.Cog.listener()
     async def on_ready(self):
