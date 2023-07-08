@@ -92,6 +92,7 @@ class Gaming(commands.Cog):
     @app_commands.command(name="gt", description="Displays a user's gt profile which has their provided social/game/friend tags.")
     async def gt(self, interaction:discord.Interaction, user:Optional[discord.Member]):
         chosen_member = interaction.user if user == None else user
+        
         # get user profile info
         m = hashlib.sha256()
         m.update(str(chosen_member.id).encode())

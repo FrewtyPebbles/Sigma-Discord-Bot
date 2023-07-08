@@ -1,3 +1,4 @@
+import hashlib
 from discord.ext import commands
 import discord
 from bot_class import DBBot
@@ -22,12 +23,13 @@ class Admin(commands.Cog):
         #create embed
         embed = discord.Embed(title=f"Commands", description=f"A bot for making your social/gamer tags easily accessable to other users.", color=47103)
         embed.add_field(name=f"`/gt`", value=f"View your /gt profile.  A /gt profile is a way for users to make their gamer-tags/friend-tags for different platforms accessable to other users.", inline=False)
-        embed.add_field(name=f"`/gt user`", value=f"View a user's /gt profile.", inline=False)
+        embed.add_field(name=f"`/gt @user`", value=f"View a user's /gt profile.", inline=False)
         embed.add_field(name=f"`/settag platform_name user_tag`", value=f"Add tags for different games/platforms to your /gt profile.", inline=False)
         embed.add_field(name=f"`/removetag platform_name`", value=f"Remove tags from your /gt profile.", inline=False)
         if interaction.user.guild_permissions.administrator:
             embed.add_field(name=f"`/addplatform platform_name`", value=f"Add platforms/games that users are allowed to add to their /gt profile.", inline=False)
             embed.add_field(name=f"`/removeplatform platform_name`", value=f"Remove platforms/games from the list of platforms/games that users are allowed to add to their /gt profile.", inline=False)
+            embed.add_field(name=f"`/removeuserplatform @user platform_name`", value=f"Remove a platform/game from the specified user's gt profile.", inline=False)
         embed.add_field(name=f"`/info`", value=f"Show info about the Sigma Bot and its developer.", inline=False)
         await interaction.response.send_message(embed=embed)
     
@@ -74,6 +76,19 @@ class Admin(commands.Cog):
         })
 
         await interaction.response.send_message(f"Removed *{platform}* from server platform list.")
+
+    @app_commands.command(name="removeuserplatform", description="Removes a platform from a specified user's gt profile.")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.autocomplete(platform=games_autocomplete)
+    async def removeuserplatform(self, interaction:discord.Interaction, user:discord.User, platform:str):
+        m = hashlib.sha256()
+        m.update(str(user.id).encode())
+        username_hash = m.hexdigest()
+        await self.db.profile.update_one({"gid":interaction.guild_id, "uid":username_hash}, {
+            "$pull": {f"platforms":{"name":platform}}
+        })
+
+        await interaction.response.send_message(f"Removed *{platform}* from {user.name}'s gt profile.")
 
     @commands.command(name='sigmasync', description='Owner only')
     @commands.has_permissions(administrator=True)
